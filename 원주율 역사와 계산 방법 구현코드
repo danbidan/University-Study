@@ -1,0 +1,266 @@
+import random
+from time import time
+import math
+
+err=1e-7 #오차범위
+
+# 2.1. 원의 넓이를 이용한 몬테카를로 실험
+
+count=0
+result=0
+i=0
+start=time()
+
+while abs(math.pi-result)>err:
+    x=random.random()
+    y=random.random()
+    if x*x+y*y<1:
+        count+=1
+    i+=1
+    result=4*count/i
+print(f'결과: {result}, 걸린 시간: {(time()-start)*1000:.0f}ms, 반복 횟수: {i}')
+
+
+# 2.2. 뷔퐁의 바늘 문제
+
+import turtle
+
+boardWidth = 40
+needleLength = 30
+numberOfNeedles = 500
+overlappingNeedles = 0
+    
+myPen = turtle.Turtle()
+myPen.hideturtle()
+myPen.speed(0)
+
+y = 180
+#Draw floor boards
+for i in range(0,10):
+    myPen.penup()
+    myPen.goto(-200,y)
+    myPen.pendown()
+    myPen.goto(200,y)
+    y-=boardWidth
+
+#Draw Needles
+myPen.color("red")
+for needle in range(0,numberOfNeedles):
+    x=random.uniform(-200,200)
+    y=random.uniform(-180,180)
+    angle=random.uniform(0,360)
+    myPen.penup()
+    myPen.goto(x,y)
+    myPen.setheading(angle)
+    myPen.pendown()
+    a=myPen.ycor()
+    myPen.forward(needleLength)
+    b=myPen.ycor()
+
+    for i in range(-180,181,boardWidth):
+        if a <= i <= b or b<= i <= a:
+            overlappingNeedles+=1
+  
+print("L = " + str(needleLength))
+print("N = " + str(numberOfNeedles))
+print("W = " + str(boardWidth))
+print("C = "+ str(overlappingNeedles))
+
+pi = (2*needleLength*numberOfNeedles)/(boardWidth*overlappingNeedles)
+print("pi ~ ",pi)
+
+
+# 3.1. 아르키메데스 방법
+
+n = 5 # 5각형부터 시작
+
+while True:
+    degree = 360 / n
+    theta = degree / 2
+    inner_length = math.sin(math.radians(theta)) * 2 # 내접 정n각형 한 변 길이
+    outer_length = math.tan(math.radians(theta)) * 2 # 외접 정n각형 한 변 길이
+    difference = outer_length - inner_length
+    new_pi = n * ((outer_length + inner_length) / 2) /2 # 아르키메데스 방법으로 구한 파이
+
+    if difference < err: 
+        break
+    else:
+        n = n + 1
+        
+print(f'pi = {new_pi}')
+print(f'정{n}각형')
+print("내장 원주율: ", math.pi, "차이: ", math.pi - new_pi)
+
+
+# 3.2. 구분구적법
+
+n = 10000
+
+s=0
+for k in range(n):
+    s = s + (1/n) * ((1-(k/n)**2)**(1/2))
+new_pi = s*4
+
+print(f'결과: {new_pi}')
+
+
+# 4.1. 라이프니츠
+
+result=0
+i=0
+start=time()
+while abs(math.pi-result*4)>err:
+    result+=(-1)**i/(2*i+1)
+    i+=1
+
+result*=4
+print(f'결과: {result}, 걸린 시간: {(time()-start)*1000:.0f}ms, 반복 횟수: {i}')
+
+
+# 4.2. 오일러
+
+def taylor_atan(x,i):  # atan(x)의 테일러 급수의 i+1번째 항
+    return (-1)**i*x**(2*i+1)/(2*i+1)
+
+
+start=time()
+result=0
+i=0
+while abs(math.pi-result)>err:
+    result+=4*(taylor_atan(1/2,i)+taylor_atan(1/3,i))
+    i+=1
+print(f'결과: {result}, 걸린 시간: {(time()-start)*1000:.0f}ms, 반복 횟수: {i}')
+
+
+# 4.3. 윌리스
+
+start=time()
+result=1
+i=0
+
+while abs(math.pi-result*2)>err:
+    result*=((i//2+1)*2)/(((i+1)//2)*2+1)
+    i+=1
+result*=2
+
+print(f'결과: {result}, 걸린 시간: {(time()-start)*1000:.0f}ms, 반복 횟수: {i}')
+
+
+# 4.4 뉴턴
+
+err=10e-15
+factor=1
+result=0
+i=1
+start=time()
+while abs(math.pi-result*6)>err:
+    result+=factor*0.5**(2*i-1)/(2*i-1)
+    factor*=(2*i-1)/(2*i)
+    i+=1
+result*=6
+print(f'결과: {result}, 걸린 시간: {(time()-start)*1000:.0f}ms, 반복 횟수: {i-1}')
+
+
+
+# 4.5 그 외 수학자
+
+# 해튼
+start=time()
+result=0
+i=0
+while abs(math.pi-result)>err:
+    result+=12*(taylor_atan(1/4,i))+4*taylor_atan(5/99,i)
+    i+=1
+print(f'결과: {result}, 걸린 시간: {(time()-start)*1000:.0f}ms, 반복 횟수: {i}')
+
+#마틴
+start=time()
+result=0
+i=0
+while abs(math.pi-result)>err:
+    result+=16*taylor_atan(1/5,i)-4*taylor_atan(1/239,i)
+    i+=1
+print(f'결과: {result}, 걸린 시간: {(time()-start)*1000:.0f}ms, 반복 횟수: {i+1}')
+
+#베가
+start=time()
+result=0
+i=0
+while abs(math.pi-result)>err:
+    result+=16*taylor_atan(1/5,i)-8*taylor_atan(1/408,i)+4*taylor_atan(1/1393,i)
+    i+=1
+print(f'결과: {result}, 걸린 시간: {(time()-start)*1000:.0f}ms, 반복 횟수: {i}')
+
+#오일러, 베가
+start=time()
+result=0
+i=0
+while abs(math.pi-result)>err:
+    result+=20*taylor_atan(1/7,i)+8*taylor_atan(3/79,i)
+    i+=1
+print(f'결과: {result}, 걸린 시간: {(time()-start)*1000:.0f}ms, 반복 횟수: {i}')
+
+# 가우스
+start=time()
+result=0
+i=0
+
+while abs(math.pi-result)>err:
+    result+=12*taylor_atan(1/4,i)+4*taylor_atan(1/20,i)+4*taylor_atan(1/1985,i)
+    i+=1
+print(f'9. 결과: {result}, 걸린 시간: {(time()-start)*1000:.0f}ms, 반복 횟수: {i}')
+
+# 다제
+start=time()
+result=0
+i=0
+while abs(math.pi-result)>err:
+    result+=4*taylor_atan(1/2,i)+4*taylor_atan(1/5,i)+4*taylor_atan(1/8,i)
+    i+=1
+print(f'결과: {result}, 걸린 시간: {(time()-start)*1000:.0f}ms, 반복 횟수: {i}')
+
+# 러더퍼드
+start=time()
+result=0
+i=0
+while abs(math.pi-result)>err:
+    result+=16*taylor_atan(1/5,i)-4*taylor_atan(1/70,i)+4*taylor_atan(1/99,i)
+    i+=1
+print(f'결과: {result}, 걸린 시간: {(time()-start)*1000:.0f}ms, 반복 횟수: {i}')
+
+# 센크스
+start=time()
+result=0
+i=0
+
+while abs(math.pi-result)>err:
+    result+=24*taylor_atan(1/8,i)+8*taylor_atan(1/57,i)+4*taylor_atan(1/239,i)
+    i+=1
+print(f'결과: {result}, 걸린 시간: {(time()-start)*1000:.0f}ms, 반복 횟수: {i}')
+
+# 샤프
+
+start=time()
+result=0
+i=0
+
+while abs(math.pi-result*(2*math.sqrt(3)))>err:
+    result+=(-1)**i/((2*i+1)*3**i)
+    i+=1
+
+result*=2*math.sqrt(3)    
+print(f'13. 결과: {result}, 걸린 시간: {(time()-start)*1000:.0f}ms, 반복 횟수: {i}')
+
+# 오일러
+start=time()
+result=2*math.sqrt(3)
+result2=2*math.sqrt(3)
+factor=0
+i=0
+while abs(math.pi-result)>err:
+    result=result2
+    factor+=(-1)**i/(i+1)**2
+    result2=result
+    result*=math.sqrt(factor)
+    i+=1
+print(f'15. 결과: {result}, 걸린 시간: {(time()-start)*1000:.0f}ms, 반복 횟수: {i}')
